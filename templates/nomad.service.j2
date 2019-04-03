@@ -1,0 +1,13 @@
+[Unit]
+Description=nomad agent
+Requires=network-online.target
+After=network-online.target
+[Service]
+EnvironmentFile=-/etc/sysconfig/nomad
+Restart=on-failure
+ExecStart={{ nomad_bin_dir }}/nomad agent -config={{ nomad_config_dir }}/server.hcl
+ExecReload=/bin/kill -HUP $MAINPID
+KillSignal=SIGTERM
+{#User=nomad#}
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+---
+- name: Set service file
+  template:
+    src: nomad.service.j2
+    dest: /etc/systemd/system/nomad.service
+  notify: restart nomad
+
+- meta: flush_handlers
+
+- name: Start & Enable nomad
+  service:
+    name: nomad
+    state: started
+    enabled: True

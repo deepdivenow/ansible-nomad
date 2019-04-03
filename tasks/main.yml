@@ -1,0 +1,14 @@
+---
+# tasks file for ansible-nomad
+
+- import_tasks: install.yml
+  tags: [nomad, nomad_install]
+
+- import_tasks: configure.yml
+  tags: [nomad, nomad_configure]
+
+- import_tasks: docker.yml
+  tags: [nomad, nomad_service]
+
+- import_tasks: service.yml
+  tags: [nomad, nomad_service]

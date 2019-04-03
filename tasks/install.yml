@@ -1,0 +1,39 @@
+---
+- name: Check nomad user
+  user: name="{{ nomad_user }}" home="{{ nomad_data_dir }}"
+
+- name: Check nomad dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "{{ nomad_user }}"
+  with_items:
+  - "{{ nomad_config_dir }}"
+  - "{{ nomad_data_dir }}"
+
+- name: Register the current nomad version (if any)
+  command: bash -c "{{ nomad_bin_dir }}/nomad version | head -1 | awk '{print $2}'"
+  ignore_errors: yes
+  register: nomad_version_check
+  changed_when: false
+
+- block:
+    - name: download {{ nomad_link }}
+      get_url:
+        url: "{{ nomad_link }}"
+        dest: "/tmp/{{ nomad_link|basename }}"
+
+    - name: install nomad
+      unarchive:
+        copy: no
+        src: "/tmp/{{ nomad_link|basename }}"
+        dest: "{{ nomad_bin_dir }}"
+#        extra_opts: "--strip-components=1"
+
+    - name: Remove archive {{ nomad_link|basename }}
+      file:
+        path: "/tmp/{{ nomad_link|basename }}"
+        state: absent
+
+  when: nomad_version_check is failed or nomad_version_check.stdout != nomad_version_target
